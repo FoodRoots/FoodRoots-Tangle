@@ -1,0 +1,8 @@
+****SETUP******
+Steps based on pyota instructions site: https://pyota.readthedocs.io/en/latest/index.html
+- installed  pyOTA (including ccurl and pow subpackages) (in python: pip install pyota + pip install pyota[ccurl, pow])
+- installed local IOTA node host (https://github.com/iotaledger/iri/releases)
+- installed 64bit version of JAVA so that local IOTA node wouldnt crash
+CURRENTLY @ https://pyota.readthedocs.io/en/latest/types.html
+tutorial on storing some data together with  rfid integration
+https://github.com/huggre/using_rfid_with_iota
