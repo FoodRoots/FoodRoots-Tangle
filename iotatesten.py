@@ -3,6 +3,7 @@ from datetime import datetime
 
 # Import the PyOTA library
 import iota
+from astropy.table import QTable, Table, Column
 from iota import Transaction
 from iota import Address
 
@@ -26,7 +27,7 @@ api = iota.Iota("https://nodes.thetangle.org:443")
 print("\nWelcome to the FoodRoots log system")
 print("\nType 'newinput()' in the console in order to register a new data transaction")
 print("\nor type 'retrieve()' in the console in order to retrieve all data transactions")
-def newinput():
+""""def newinput():
     # Get the ID of the sender
     senderid = input("\nPlease type your username and press Enter: ")
   
@@ -58,12 +59,13 @@ def newinput():
     print("\nTransaction sucessfully completed!")
     print("\nType 'newinput()' in the console in order to register a new data transaction")
     print("\nor type 'retrieve()' in the console in order to retrieve all data transactions")
-
+"""
 def retrieve(): 
-    x = PrettyTable()
+    #x = PrettyTable()
+    x=Table(names=("Sender", "Receiver", "Product ID", "Date and Time"),dtype=('S15', 'S15', 'S15','S19'))
     
     # Specify column headers for the table
-    x.field_names = ["Sender", "Receiver", "Product ID", "Date and Time"]
+    #x.field_names = ["Sender", "Receiver", "Product ID", "Date and Time"]
 
     # Find all transacions for selected IOTA address
     result = api.find_transactions(addresses=address)
@@ -74,9 +76,27 @@ def retrieve():
     # Print wait message
     print("Please wait while retrieving FoodRoots data from the tangle...")
 
+    # Select which data you want to retrieve
+    #datarange = []
+    #dataarg = []
+    # Keep asking for new rules until the user is satisfied
+    filterrule=Table(names=('datarange','dataarg'),dtype=('S15', 'S15'))
+    while True:
+        # ask for filter rules
+        newrule=input("\nDo you want to search for a specific transaction. Type y(es)/n(o) and press enter: ")
+        if(newrule=='n' or newrule=='n'):
+            print(filterrule)
+            break
+        elif(newrule=='y' or newrule=='yes'):
+            # Ask for new rule
+            filterrule.add_row([input("\nWhich data do you want to select? The default is productId. Type and press Enter: "),input("\nWhat value do you want to select? Type and press Enter: ")])
+            continue
+        else:
+            print("\nYour input is not recognised, please try again")
+            continue
+
     # Loop trough all transaction hashes
     for txn_hash in myhashes:
-    
         # Convert to bytes
         txn_hash_as_bytes = bytes(txn_hash)
 
@@ -97,10 +117,18 @@ def retrieve():
 
         # Get transaction message as string
         txn_data = str(txn.signature_message_fragment.decode())
-    
+        
         # Convert to json
         json_data = json.loads(txn_data)
-    
+        
+        # Check if this line is relevant for the search criteria
+        i=0
+        while i<len(filterrule[0][:]):
+            print(json_data[filterrule[i][0]])
+            if(json_data[filterrule[i][0]]!=filterrule[i][1]):
+                i=i+1
+                continue
+            i=i+1
         # Check if json data has the expected json tag's
         if all(key in json.dumps(json_data) for key in ["Sender", "Receiver", "Product ID"]):
             # Add table row with json values
@@ -108,6 +136,8 @@ def retrieve():
 
     # Sort table by cleaned datetime
     x.sortby = "Date and Time"
+    
+    # Select productIds that match the input
     
     # Print table to terminal
     print(x)
